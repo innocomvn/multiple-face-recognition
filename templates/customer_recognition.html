@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhận Diện Khách Hàng</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        }
+        #preview {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .customer-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        .customer-card h5 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+        .visit-badge {
+            background: #f093fb;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .loading {
+            display: none;
+        }
+        .loading.active {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center text-white mb-4">
+            <i class="fas fa-users"></i> Hệ Thống Nhận Diện Khách Hàng
+        </h1>
+
+        <div class="row">
+            <!-- Recognition Section -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-camera"></i> Nhận Diện Khách Hàng</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Chọn ảnh hoặc chụp ảnh:</label>
+                            <input type="file" class="form-control-file" id="imageInput" accept="image/*" capture="camera">
+                        </div>
+                        <div class="text-center">
+                            <img id="preview" style="display: none;">
+                        </div>
+                        <button class="btn btn-primary btn-block mt-3" id="recognizeBtn" disabled>
+                            <span class="loading spinner-border spinner-border-sm" role="status"></span>
+                            <span id="btnText">Nhận Diện Khách Hàng</span>
+                        </button>
+
+                        <div id="result" class="mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Add New Customer -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user-plus"></i> Thêm Khách Hàng Mới</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Tên khách hàng:</label>
+                            <input type="text" class="form-control" id="customerName" placeholder="Nhập tên">
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" class="form-control" id="customerEmail" placeholder="email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại:</label>
+                            <input type="tel" class="form-control" id="customerPhone" placeholder="0123456789">
+                        </div>
+                        <div class="form-group">
+                            <label>Ghi chú:</label>
+                            <textarea class="form-control" id="customerNotes" rows="2" placeholder="Ghi chú về khách hàng"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Ảnh khuôn mặt:</label>
+                            <input type="file" class="form-control-file" id="customerImage" accept="image/*" capture="camera">
+                        </div>
+                        <button class="btn btn-success btn-block" id="addCustomerBtn">
+                            <i class="fas fa-save"></i> Thêm Khách Hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer List Section -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-address-book"></i> Danh Sách Khách Hàng</h4>
+                    </div>
+                    <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                        <button class="btn btn-sm btn-info mb-3" id="refreshBtn">
+                            <i class="fas fa-sync"></i> Làm mới
+                        </button>
+                        <div id="customerList">
+                            <p class="text-center text-muted">Đang tải...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Thống Kê</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-6">
+                                <h3 class="text-danger" id="totalCustomers">0</h3>
+                                <p>Tổng khách hàng</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="text-info" id="todayVisits">0</h3>
+                                <p>Lượt ghé thăm hôm nay</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let currentCustomerId = null;
+
+        // Image preview
+        $('#imageInput').on('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#preview').attr('src', e.target.result).show();
+                    $('#recognizeBtn').prop('disabled', false);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Recognize customer
+        $('#recognizeBtn').on('click', function() {
+            const fileInput = $('#imageInput')[0];
+            if (!fileInput.files[0]) {
+                alert('Vui lòng chọn ảnh!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+
+            $('.loading').addClass('active');
+            $('#btnText').text('Đang nhận diện...');
+            $('#recognizeBtn').prop('disabled', true);
+
+            $.ajax({
+                url: `${API_BASE}/customers/recognize`,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('.loading').removeClass('active');
+                    $('#btnText').text('Nhận Diện Khách Hàng');
+                    $('#recognizeBtn').prop('disabled', false);
+
+                    if (response.success && response.recognized > 0) {
+                        let html = '<div class="alert alert-success"><strong>Nhận diện thành công!</strong><br><br>';
+
+                        response.customers.forEach(customer => {
+                            html += `<div class="customer-card">
+                                <h5><i class="fas fa-user"></i> ${customer.name}</h5>
+                                <p class="mb-1"><strong>Email:</strong> ${customer.email || 'Chưa có'}</p>
+                                <p class="mb-1"><strong>Điện thoại:</strong> ${customer.phone || 'Chưa có'}</p>
+                                <p class="mb-1"><strong>Số lần ghé thăm:</strong> <span class="visit-badge">${customer.visit_count} lần</span></p>
+                                <p class="mb-1"><strong>Lần ghé gần nhất:</strong> ${customer.last_visit}</p>
+                                <p class="mb-1"><strong>Độ tin cậy:</strong> ${(customer.confidence * 100).toFixed(1)}%</p>
+                                ${customer.notes ? `<p class="mb-0 text-muted"><em>${customer.notes}</em></p>` : ''}
+                            </div>`;
+                        });
+
+                        html += '</div>';
+                        $('#result').html(html).show();
+
+                        loadCustomers();
+                    } else {
+                        $('#result').html(`
+                            <div class="alert alert-warning">
+                                <strong>Không nhận diện được!</strong><br>
+                                Khách hàng chưa có trong hệ thống. Vui lòng thêm khách hàng mới.
+                            </div>
+                        `).show();
+                    }
+                },
+                error: function(xhr) {
+                    $('.loading').removeClass('active');
+                    $('#btnText').text('Nhận Diện Khách Hàng');
+                    $('#recognizeBtn').prop('disabled', false);
+
+                    const error = xhr.responseJSON ? xhr.responseJSON.error : 'Có lỗi xảy ra!';
+                    $('#result').html(`
+                        <div class="alert alert-danger">
+                            <strong>Lỗi!</strong><br>${error}
+                        </div>
+                    `).show();
+                }
+            });
+        });
+
+        // Add new customer
+        $('#addCustomerBtn').on('click', function() {
+            const name = $('#customerName').val().trim();
+            const email = $('#customerEmail').val().trim();
+            const phone = $('#customerPhone').val().trim();
+            const notes = $('#customerNotes').val().trim();
+            const fileInput = $('#customerImage')[0];
+
+            if (!name) {
+                alert('Vui lòng nhập tên khách hàng!');
+                return;
+            }
+
+            if (!fileInput.files[0]) {
+                alert('Vui lòng chọn ảnh khuôn mặt!');
+                return;
+            }
+
+            $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang thêm...');
+
+            // First, create customer record
+            $.ajax({
+                url: `${API_BASE}/customers`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    notes: notes
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        // Then upload photo
+                        const formData = new FormData();
+                        formData.append('image', fileInput.files[0]);
+
+                        $.ajax({
+                            url: `${API_BASE}/customers/${response.customer_id}/upload-photo`,
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function() {
+                                alert('Thêm khách hàng thành công!');
+                                // Clear form
+                                $('#customerName').val('');
+                                $('#customerEmail').val('');
+                                $('#customerPhone').val('');
+                                $('#customerNotes').val('');
+                                $('#customerImage').val('');
+                                $('#addCustomerBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Thêm Khách Hàng');
+                                loadCustomers();
+                            },
+                            error: function() {
+                                alert('Thêm khách hàng thành công nhưng không thể upload ảnh!');
+                                $('#addCustomerBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Thêm Khách Hàng');
+                                loadCustomers();
+                            }
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON ? xhr.responseJSON.error : 'Có lỗi xảy ra!';
+                    alert('Lỗi: ' + error);
+                    $('#addCustomerBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Thêm Khách Hàng');
+                }
+            });
+        });
+
+        // Load customers
+        function loadCustomers() {
+            $.ajax({
+                url: `${API_BASE}/customers`,
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        displayCustomers(response.customers);
+                        $('#totalCustomers').text(response.count);
+                    }
+                },
+                error: function() {
+                    $('#customerList').html('<p class="text-danger">Không thể tải dữ liệu</p>');
+                }
+            });
+        }
+
+        // Display customers
+        function displayCustomers(customers) {
+            if (customers.length === 0) {
+                $('#customerList').html('<p class="text-muted text-center">Chưa có khách hàng nào</p>');
+                return;
+            }
+
+            let html = '';
+            customers.forEach(customer => {
+                html += `<div class="customer-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5><i class="fas fa-user-circle"></i> ${customer.Name}</h5>
+                            <p class="mb-1 small"><i class="fas fa-envelope"></i> ${customer.Email || 'Chưa có email'}</p>
+                            <p class="mb-1 small"><i class="fas fa-phone"></i> ${customer.Phone || 'Chưa có SĐT'}</p>
+                            <p class="mb-1 small"><i class="fas fa-calendar"></i> Lần cuối: ${customer.LastVisit || 'Chưa có'}</p>
+                            <span class="visit-badge">${customer.VisitCount || 0} lượt</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${customer.ID}, '${customer.Name}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${customer.Notes ? `<p class="mt-2 mb-0 text-muted small"><em>${customer.Notes}</em></p>` : ''}
+                </div>`;
+            });
+
+            $('#customerList').html(html);
+        }
+
+        // Delete customer
+        function deleteCustomer(id, name) {
+            if (!confirm(`Bạn có chắc muốn xóa khách hàng "${name}"?`)) {
+                return;
+            }
+
+            $.ajax({
+                url: `${API_BASE}/customers/${id}`,
+                type: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Đã xóa khách hàng!');
+                        loadCustomers();
+                    }
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON ? xhr.responseJSON.error : 'Có lỗi xảy ra!';
+                    alert('Lỗi: ' + error);
+                }
+            });
+        }
+
+        // Event listeners
+        $('#refreshBtn').on('click', loadCustomers);
+
+        // Initialize
+        $(document).ready(function() {
+            loadCustomers();
+        });
+    </script>
+</body>
+</html>
