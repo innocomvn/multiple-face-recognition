@@ -1,0 +1,341 @@
+{
+	"info": {
+		"_postman_id": "frams-api-collection-2024",
+		"name": "FRAMS API Collection",
+		"description": "Complete API collection for Face Recognition Attendance & Customer Management System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health & Monitoring",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/health",
+							"host": ["{{base_url}}"],
+							"path": ["api", "health"]
+						},
+						"description": "Check API health status"
+					}
+				},
+				{
+					"name": "Get Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stats"]
+						},
+						"description": "Get system statistics"
+					}
+				},
+				{
+					"name": "Get Version",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/version",
+							"host": ["{{base_url}}"],
+							"path": ["api", "version"]
+						},
+						"description": "Get API version info"
+					}
+				}
+			]
+		},
+		{
+			"name": "Attendance API",
+			"item": [
+				{
+					"name": "Recognize & Mark Attendance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/path/to/image.jpg",
+									"description": "Upload employee photo"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/attendance/recognize",
+							"host": ["{{base_url}}"],
+							"path": ["api", "attendance", "recognize"]
+						},
+						"description": "Recognize faces and mark attendance"
+					}
+				},
+				{
+					"name": "Get Today's Attendance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/attendance/today",
+							"host": ["{{base_url}}"],
+							"path": ["api", "attendance", "today"]
+						},
+						"description": "Get attendance for today"
+					}
+				},
+				{
+					"name": "Get All Attendance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/attendance/all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "attendance", "all"]
+						},
+						"description": "Get all attendance records"
+					}
+				},
+				{
+					"name": "Get Employee Attendance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/attendance/employee/{{employee_name}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "attendance", "employee", "{{employee_name}}"]
+						},
+						"description": "Get attendance for specific employee"
+					}
+				}
+			]
+		},
+		{
+			"name": "Employee API",
+			"item": [
+				{
+					"name": "Register Employee",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "NGUYEN_VAN_A",
+									"type": "text",
+									"description": "Employee name"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/path/to/employee.jpg",
+									"description": "Employee face photo"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/employees/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "employees", "register"]
+						},
+						"description": "Register new employee"
+					}
+				},
+				{
+					"name": "Get Employees List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/employees",
+							"host": ["{{base_url}}"],
+							"path": ["api", "employees"]
+						},
+						"description": "Get list of all employees"
+					}
+				}
+			]
+		},
+		{
+			"name": "Customer API",
+			"item": [
+				{
+					"name": "Recognize Customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/path/to/customer.jpg",
+									"description": "Customer photo"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/customers/recognize",
+							"host": ["{{base_url}}"],
+							"path": ["api", "customers", "recognize"]
+						},
+						"description": "Recognize customer from photo"
+					}
+				},
+				{
+					"name": "Get All Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/customers",
+							"host": ["{{base_url}}"],
+							"path": ["api", "customers"]
+						},
+						"description": "Get list of all customers"
+					}
+				},
+				{
+					"name": "Create Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"NGUYEN_VAN_C\",\n    \"email\": \"customer@example.com\",\n    \"phone\": \"0912345678\",\n    \"notes\": \"VIP customer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/customers",
+							"host": ["{{base_url}}"],
+							"path": ["api", "customers"]
+						},
+						"description": "Create new customer"
+					}
+				},
+				{
+					"name": "Get Customer Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/customers/{{customer_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "customers", "{{customer_id}}"]
+						},
+						"description": "Get customer details by ID"
+					}
+				},
+				{
+					"name": "Update Customer",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"NGUYEN_VAN_C\",\n    \"email\": \"newemail@example.com\",\n    \"phone\": \"0987654321\",\n    \"notes\": \"Updated notes\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/customers/{{customer_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "customers", "{{customer_id}}"]
+						},
+						"description": "Update customer information"
+					}
+				},
+				{
+					"name": "Delete Customer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/customers/{{customer_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "customers", "{{customer_id}}"]
+						},
+						"description": "Delete customer"
+					}
+				},
+				{
+					"name": "Upload Customer Photo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/path/to/customer_face.jpg",
+									"description": "Customer face photo"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/customers/{{customer_id}}/upload-photo",
+							"host": ["{{base_url}}"],
+							"path": ["api", "customers", "{{customer_id}}", "upload-photo"]
+						},
+						"description": "Upload customer face photo"
+					}
+				},
+				{
+					"name": "Get Customer Visits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/customers/{{customer_name}}/visits",
+							"host": ["{{base_url}}"],
+							"path": ["api", "customers", "{{customer_name}}", "visits"]
+						},
+						"description": "Get customer visit history"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "employee_name",
+			"value": "NGUYEN_VAN_A",
+			"type": "string"
+		},
+		{
+			"key": "customer_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "customer_name",
+			"value": "NGUYEN_VAN_C",
+			"type": "string"
+		}
+	]
+}

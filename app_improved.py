@@ -12,10 +12,56 @@ import pandas as pd
 import base64
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Generate secure secret key
 CORS(app)  # Enable CORS for API access
+
+# ============================================================================
+# LOGGING CONFIGURATION
+# ============================================================================
+
+def setup_logging():
+    """Setup logging configuration for production"""
+    # Create logs directory if not exists
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+
+    # Set log level
+    log_level = logging.INFO
+
+    # Create formatter
+    formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    )
+
+    # File handler - rotating log files
+    file_handler = RotatingFileHandler(
+        'logs/app.log',
+        maxBytes=10240000,  # 10MB
+        backupCount=10
+    )
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(log_level)
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(log_level)
+
+    # Add handlers to app logger
+    app.logger.addHandler(file_handler)
+    app.logger.addHandler(console_handler)
+    app.logger.setLevel(log_level)
+
+    app.logger.info('=' * 60)
+    app.logger.info('FRAMS 2.0 - Face Recognition System Starting')
+    app.logger.info('=' * 60)
+
+# Initialize logging
+setup_logging()
 
 # Configuration
 TRAINING_IMAGES_PATH = 'Training images'
@@ -759,6 +805,127 @@ def customer_recognition_page():
 def attendance_web():
     """Web page for attendance tracking"""
     return render_template('attendance_tracking.html')
+
+# ============================================================================
+# HEALTH CHECK & MONITORING ENDPOINTS
+# ============================================================================
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for monitoring"""
+    try:
+        # Check database connection
+        conn = sqlite3.connect(ATTENDANCE_DB)
+        cursor = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")
+        table_count = cursor.fetchone()[0]
+        conn.close()
+
+        # Check directories
+        training_exists = os.path.exists(TRAINING_IMAGES_PATH)
+        customer_exists = os.path.exists(CUSTOMER_IMAGES_PATH)
+
+        # Count employees and customers
+        employees_count = len([f for f in os.listdir(TRAINING_IMAGES_PATH)
+                              if f.lower().endswith(('.png', '.jpg', '.jpeg'))]) if training_exists else 0
+
+        conn = sqlite3.connect(ATTENDANCE_DB)
+        cursor = conn.execute("SELECT COUNT(*) FROM Customers")
+        customers_count = cursor.fetchone()[0]
+        conn.close()
+
+        return jsonify({
+            'status': 'healthy',
+            'timestamp': datetime.now().isoformat(),
+            'version': '2.0.0',
+            'database': {
+                'connected': True,
+                'tables': table_count
+            },
+            'directories': {
+                'training_images': training_exists,
+                'customer_images': customer_exists
+            },
+            'stats': {
+                'employees': employees_count,
+                'customers': customers_count
+            }
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    """Get system statistics"""
+    try:
+        conn = sqlite3.connect(ATTENDANCE_DB)
+
+        # Today's attendance
+        today = date.today()
+        cursor = conn.execute(
+            "SELECT COUNT(DISTINCT NAME) FROM Attendance WHERE Date=?",
+            (str(today),)
+        )
+        today_attendance = cursor.fetchone()[0]
+
+        # Total attendance records
+        cursor = conn.execute("SELECT COUNT(*) FROM Attendance")
+        total_attendance = cursor.fetchone()[0]
+
+        # Total customers
+        cursor = conn.execute("SELECT COUNT(*) FROM Customers")
+        total_customers = cursor.fetchone()[0]
+
+        # Total visits
+        cursor = conn.execute("SELECT COUNT(*) FROM CustomerVisits")
+        total_visits = cursor.fetchone()[0]
+
+        conn.close()
+
+        # Total employees
+        training_exists = os.path.exists(TRAINING_IMAGES_PATH)
+        total_employees = len([f for f in os.listdir(TRAINING_IMAGES_PATH)
+                              if f.lower().endswith(('.png', '.jpg', '.jpeg'))]) if training_exists else 0
+
+        return jsonify({
+            'success': True,
+            'stats': {
+                'attendance': {
+                    'today': today_attendance,
+                    'total_records': total_attendance
+                },
+                'employees': {
+                    'total': total_employees
+                },
+                'customers': {
+                    'total': total_customers,
+                    'total_visits': total_visits
+                },
+                'date': str(today)
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/version', methods=['GET'])
+def get_version():
+    """Get API version information"""
+    return jsonify({
+        'version': '2.0.0',
+        'api_version': 'v1',
+        'name': 'FRAMS - Face Recognition Attendance & Customer Management System',
+        'endpoints': {
+            'attendance': 4,
+            'customers': 8,
+            'employees': 2,
+            'health': 3
+        }
+    })
 
 # ============================================================================
 # RUN APPLICATION

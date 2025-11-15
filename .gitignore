@@ -66,6 +66,7 @@ tmp/
 # Logs
 *.log
 logs/
+app.log
 
 # OS Files
 Thumbs.db

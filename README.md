@@ -1,90 +1,317 @@
-## Face Recognition based Attendance Management System (FRAMS)
-Face Recognition based Attendance Management System with a Flask web application and Power BI attendance dashboard.
+# 🎯 FRAMS 2.0 - Face Recognition Attendance & Customer Management System
 
-### Table of Contents
-- [Features](#features)
-- [Youtube Demo](#youtube-demo)
-- [Installation and Usage](#installation-and-usage)
-- [Technologies Used](#technologies-used)
-- [Methodology](#methodology)
-- [User Interface Demo](#user-interface-demo)
-- [License](#license)
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-1.1.2-green.svg)](https://flask.palletsprojects.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![AI](https://img.shields.io/badge/AI-Face_Recognition-ff69b4)](https://github.com/ageitgey/face_recognition)
 
-### Features
-- Face detection and recognition
-- Attendance management
-- Generates attendance reports in a csv file
-- Secure admin login
-- Interactive user interface
-- Can detect multiple faces and mark attendance at a time 
-- Works in bright and low light conditions
-- Attendance dashboards using Power BI
+> **Hệ thống nhận diện khuôn mặt AI toàn diện** - Giải pháp chấm công thông minh và quản lý khách hàng tự động
 
-### Youtube Demo
-Here's the link of the [Youtube](https://youtu.be/JKSU7lbZ3ZE) video demonstrating this project.
+![Version](https://img.shields.io/badge/Version-2.0.0-brightgreen)
+![Status](https://img.shields.io/badge/Status-Production_Ready-success)
 
+---
 
-### Installation and Usage
-1. Clone the repository:
-    ```
-    git clone https://github.com/amlanmohanty1/face-recognition-attendance-management-system-with-PowerBI-dashboard.git
-    ```
-2. Install the required dependencies:
-    ```
-    pip install -r requirements.txt
-    ```
-3. Replace the training images with your own set of images in the folder `Training images`.
-4. Open the `app.py` file and change the file paths as per your system.
-5. Run the `app.py` file.
+## ✨ What's New in Version 2.0
 
-### Technologies Used
-- **Programming Languages:** Python
-- **Libraries:** OpenCV, dlib, face-recognition
-- **Database:** SQLite
-- **Web Application:** Flask, HTML, CSS, JavaScript
-- **Data Visualization:** Power BI
+🎉 **Major Update** - Hệ thống được nâng cấp hoàn toàn với nhiều tính năng mới!
 
-### Methodology
-- **Environment Setup:** Created a conda environment and installed necessary dependencies including OpenCV, dlib, face-recognition, and Flask.
-- **Face Detection:** Converted images to black and white, then used HOG to detect faces by comparing image gradients.
-- **Face Embedding:** Used 128-dimensional vectors and the triplet loss function for distinguishing between faces.
-- **Face Recognition:** Utilized Euclidean distance with a threshold of 0.5 to compare the generated face encodings with the actual encodings of the training images to recognize the faces.
-- **Database Connection:** Stored attendance data in a SQLite database and exported it to CSV for Power BI integration.
-- **Web Application:** Developed a Flask-based web app for real-time attendance capturing and management.
-- **Power BI Dashboard:** Connected the attendance data to Power BI to create dashboards. Embedded Power BI reports into the web app for real-time insights.
+- ✅ **RESTful API** - 15+ endpoints cho tích hợp
+- ✅ **Customer Recognition** - Quản lý khách hàng thông minh
+- ✅ **Modern UI** - Giao diện mới hiện đại
+- ✅ **Docker Support** - Deploy dễ dàng
+- ✅ **Comprehensive Docs** - Tài liệu đầy đủ
 
+---
 
-### User Interface Demo
-- Fig.1: Home page of FRAMS
-  
-  ![image](https://github.com/amlanmohanty1/face-recognition-attendance-management-system-with-PowerBI-dashboard/assets/72063042/b5f28977-3781-4091-bd69-e2bdd392a548)
+## 🚀 Quick Start - 3 Phút!
 
-- Fig.2: Attendance Punching using FRAMS
-  
-  ![image](https://github.com/amlanmohanty1/face-recognition-attendance-management-system-with-PowerBI-dashboard/assets/72063042/2ef80327-c75e-4c5e-810d-b5b6387b6dd2)
+### **Linux/macOS:**
+```bash
+./start.sh
+```
 
-- Fig.3: Face is detected in low light conditions
+### **Windows:**
+```batch
+start.bat
+```
 
-  ![image](https://github.com/amlanmohanty1/face-recognition-attendance-management-system-with-PowerBI-dashboard/assets/72063042/3578757a-a775-4f43-9d99-48e085af486c)
+### **Docker:**
+```bash
+docker-compose up -d
+```
 
-- Fig.4: Face is detected from different angles
+**Truy cập:** http://localhost:5000
 
-  <img src = "https://github.com/amlanmohanty1/face-recognition-attendance-management-system-with-PowerBI-dashboard/assets/72063042/60365317-d9ea-467a-95b5-b213818739ae" width="700" height="500">
+📘 **Chi tiết:** [QUICKSTART.md](QUICKSTART.md)
 
-- Fig.5: Administrator Login Page
+---
 
-  ![image](https://github.com/amlanmohanty1/face-recognition-attendance-management-system-with-PowerBI-dashboard/assets/72063042/9c60132b-0b56-4a1b-8cea-b7b87b43ea28)
+## ✨ Features
 
-- Fig.6: Page showing the current day’s attendance
+### 🏢 Chấm Công Nhân Viên
+- ✅ Nhận diện khuôn mặt tự động (99%+ accuracy)
+- ✅ Ghi nhận thời gian chính xác
+- ✅ Hỗ trợ nhiều khuôn mặt cùng lúc
+- ✅ Xem lịch sử theo ngày/tháng/nhân viên
+- ✅ Export CSV & dashboard
 
-  ![image](https://github.com/amlanmohanty1/face-recognition-attendance-management-system-with-PowerBI-dashboard/assets/72063042/b93b3afb-113d-406f-ad62-062b0fbaeb0e)
+### 👥 Quản Lý Khách Hàng (NEW!)
+- ✅ Nhận diện khách hàng returning
+- ✅ Theo dõi lượt ghé thăm
+- ✅ Lưu thông tin (email, phone, notes)
+- ✅ CRUD operations đầy đủ
+- ✅ Lịch sử chi tiết
 
+### 🔌 RESTful API (NEW!)
+- ✅ 15+ endpoints
+- ✅ CORS enabled
+- ✅ JSON responses
+- ✅ File upload support
+- ✅ Comprehensive error handling
 
+### 🎨 Modern Web Interface
+- ✅ Responsive design (Bootstrap 4)
+- ✅ Real-time statistics
+- ✅ Upload + Camera capture
+- ✅ Beautiful UI/UX
+- ✅ 4 specialized pages
 
-- Fig.7: Attendance Dashboard in Power BI
+---
 
-  ![image](https://github.com/amlanmohanty1/face-recognition-attendance-management-system-with-PowerBI-dashboard/assets/72063042/532a47ce-fd9b-4b6a-9ef8-effd19b22dc2)
+## 📖 Documentation
 
+| Document | Description |
+|----------|-------------|
+| [QUICKSTART.md](QUICKSTART.md) | Bắt đầu trong 3 phút |
+| [SETUP_GUIDE.md](SETUP_GUIDE.md) | Hướng dẫn cài đặt chi tiết |
+| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | API reference đầy đủ |
+| [CHANGELOG.md](CHANGELOG.md) | Lịch sử thay đổi |
 
-### License
-This project is licensed under the MIT License. Check out the [LICENSE](LICENSE) file for more details. 
+---
+
+## 🌐 Pages
+
+| URL | Feature |
+|-----|---------|
+| `/` | 🏠 Landing page |
+| `/attendance-web` | 👨‍💼 Chấm công |
+| `/customer-recognition` | 👥 Nhận diện khách hàng |
+| `/customers-web` | 📊 Quản lý |
+
+---
+
+## 🔌 API Examples
+
+### Chấm công
+```python
+import requests
+
+files = {'image': open('photo.jpg', 'rb')}
+response = requests.post('http://localhost:5000/api/attendance/recognize', files=files)
+
+print(response.json())
+# Output: {"success": true, "recognized": 2, "results": [...]}
+```
+
+### Thêm khách hàng
+```python
+data = {"name": "CUSTOMER_A", "email": "test@example.com"}
+response = requests.post('http://localhost:5000/api/customers', json=data)
+customer_id = response.json()['customer_id']
+
+# Upload photo
+files = {'image': open('customer.jpg', 'rb')}
+requests.post(f'http://localhost:5000/api/customers/{customer_id}/upload-photo', files=files)
+```
+
+📚 **Full API Docs:** [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
+
+---
+
+## 🛠️ Tech Stack
+
+- **Backend:** Python 3.8+, Flask, face_recognition, OpenCV, SQLite
+- **Frontend:** HTML5, CSS3, Bootstrap 4, jQuery
+- **AI/ML:** dlib, face_recognition, numpy
+- **DevOps:** Docker, Docker Compose
+
+---
+
+## 📂 Project Structure
+
+```
+├── app_improved.py              # Main app (v2.0)
+├── templates/                   # HTML templates
+│   ├── main_improved.html       # Landing
+│   ├── attendance_tracking.html # Attendance
+│   ├── customer_recognition.html# Customer
+│   └── customers.html           # Management
+├── API_DOCUMENTATION.md         # API docs
+├── SETUP_GUIDE.md              # Setup guide
+├── QUICKSTART.md               # Quick start
+├── start.sh / start.bat        # Launchers
+├── test_api.py                 # API tests
+├── Dockerfile                  # Docker
+└── docker-compose.yml          # Compose
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Test all API endpoints
+python test_api.py
+
+# Test specific endpoint
+curl http://localhost:5000/api/health
+```
+
+---
+
+## 🐳 Docker
+
+```bash
+# Build and run
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
+```
+
+---
+
+## 📋 Requirements
+
+- Python 3.8+
+- 4GB RAM minimum
+- Webcam (optional)
+- Windows/macOS/Linux
+
+---
+
+## 🔧 Installation
+
+### Method 1: Auto Install
+```bash
+./start.sh  # or start.bat on Windows
+```
+
+### Method 2: Manual
+```bash
+pip install -r requirements.txt
+python app_improved.py
+```
+
+### Method 3: Docker
+```bash
+docker-compose up -d
+```
+
+📘 **Detailed guide:** [SETUP_GUIDE.md](SETUP_GUIDE.md)
+
+---
+
+## 🎓 Use Cases
+
+- ✅ **Doanh nghiệp:** Chấm công nhân viên
+- ✅ **Retail:** Nhận diện khách VIP
+- ✅ **Events:** Check-in tự động
+- ✅ **Hospitality:** Personalized service
+
+---
+
+## 🐛 Troubleshooting
+
+**dlib installation error (Windows):**
+```bash
+# Install Visual Studio Build Tools first
+pip install cmake
+pip install dlib
+```
+
+**Port already in use:**
+```bash
+# Change port in app_improved.py
+app.run(port=8000)  # Line ~750
+```
+
+📚 **More solutions:** [SETUP_GUIDE.md#troubleshooting](SETUP_GUIDE.md)
+
+---
+
+## 🔮 Roadmap
+
+### v2.1 (Next)
+- [ ] Authentication & Authorization
+- [ ] Email notifications
+- [ ] Advanced analytics
+- [ ] Excel/PDF export
+
+### v3.0 (Future)
+- [ ] Mobile app
+- [ ] Real-time WebSocket
+- [ ] Face mask detection
+- [ ] Cloud deployment
+
+---
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create feature branch (`git checkout -b feature/Amazing`)
+3. Commit changes (`git commit -m 'Add Amazing'`)
+4. Push to branch (`git push origin feature/Amazing`)
+5. Open Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Authors
+
+- **Original FRAMS** - v1.0
+- **Enhanced v2.0** - API & Customer features
+
+---
+
+## 🙏 Acknowledgments
+
+- [face_recognition](https://github.com/ageitgey/face_recognition) - Adam Geitgey
+- [OpenCV](https://opencv.org/)
+- [Flask](https://flask.palletsprojects.com/)
+- [Bootstrap](https://getbootstrap.com/)
+
+---
+
+## 📞 Support
+
+- 📖 **Docs:** [Documentation](docs/)
+- 🐛 **Issues:** [GitHub Issues](issues/)
+- 📧 **Email:** support@example.com
+
+---
+
+## ⭐ Star This Repo!
+
+If you find this useful, please give it a star! ⭐
+
+---
+
+<p align="center">
+  <strong>Made with ❤️ using Python & AI</strong>
+</p>
+
+<p align="center">
+  <a href="QUICKSTART.md">Get Started</a> •
+  <a href="API_DOCUMENTATION.md">API Docs</a> •
+  <a href="SETUP_GUIDE.md">Setup Guide</a>
+</p>
