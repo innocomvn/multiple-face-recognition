@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  face-recognition:
+    build: .
+    container_name: face-recognition-app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./Training images:/app/Training images
+      - ./Customer images:/app/Customer images
+      - ./information.db:/app/information.db
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+    restart: unless-stopped
+    networks:
+      - face-recognition-network
+
+networks:
+  face-recognition-network:
+    driver: bridge
+
+# Usage:
+# docker-compose up -d        # Start in background
+# docker-compose logs -f      # View logs
+# docker-compose down         # Stop
+# docker-compose restart      # Restart
