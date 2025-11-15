@@ -1,0 +1,395 @@
+openapi: 3.0.0
+info:
+  title: FRAMS API
+  description: Face Recognition Attendance & Customer Management System API
+  version: 2.0.0
+  contact:
+    name: FRAMS Support
+    email: support@frams.example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+  - url: https://api.frams.example.com/api
+    description: Production server
+
+tags:
+  - name: Health
+    description: Health check and monitoring
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Attendance
+    description: Employee attendance operations
+  - name: Employees
+    description: Employee management
+  - name: Customers
+    description: Customer management
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Error message
+
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+
+    HealthCheck:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        database:
+          type: object
+        directories:
+          type: object
+        stats:
+          type: object
+
+    AttendanceRecord:
+      type: object
+      properties:
+        NAME:
+          type: string
+        Time:
+          type: string
+        Date:
+          type: string
+
+    Customer:
+      type: object
+      properties:
+        ID:
+          type: integer
+        Name:
+          type: string
+        Email:
+          type: string
+        Phone:
+          type: string
+        LastVisit:
+          type: string
+        VisitCount:
+          type: integer
+        Notes:
+          type: string
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Check API health status
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+        '500':
+          description: Server is unhealthy
+
+  /stats:
+    get:
+      tags: [Health]
+      summary: Get system statistics
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /version:
+    get:
+      tags: [Health]
+      summary: Get API version
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                  api_version:
+                    type: string
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  username:
+                    type: string
+                  role:
+                    type: string
+        '401':
+          description: Invalid credentials
+
+  /attendance/recognize:
+    post:
+      tags: [Attendance]
+      summary: Recognize faces and mark attendance
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Recognition successful
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+
+  /attendance/today:
+    get:
+      tags: [Attendance]
+      summary: Get today's attendance
+      responses:
+        '200':
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  date:
+                    type: string
+                  count:
+                    type: integer
+                  attendance:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendanceRecord'
+
+  /employees:
+    get:
+      tags: [Employees]
+      summary: Get all employees
+      responses:
+        '200':
+          description: Employee list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  employees:
+                    type: array
+                    items:
+                      type: string
+
+  /employees/register:
+    post:
+      tags: [Employees]
+      summary: Register new employee
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name, image]
+              properties:
+                name:
+                  type: string
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Employee registered
+        '401':
+          description: Unauthorized
+
+  /customers:
+    get:
+      tags: [Customers]
+      summary: Get all customers
+      responses:
+        '200':
+          description: Customer list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  customers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+
+    post:
+      tags: [Customers]
+      summary: Create new customer
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Customer created
+        '401':
+          description: Unauthorized
+
+  /customers/{id}:
+    get:
+      tags: [Customers]
+      summary: Get customer details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Customer details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  customer:
+                    $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer not found
+
+    put:
+      tags: [Customers]
+      summary: Update customer
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '200':
+          description: Customer updated
+        '401':
+          description: Unauthorized
+        '404':
+          description: Customer not found
+
+    delete:
+      tags: [Customers]
+      summary: Delete customer
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Customer deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Customer not found

@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_socketio import SocketIO, emit
 import cv2
 import numpy as np
 import face_recognition
@@ -18,6 +21,26 @@ from logging.handlers import RotatingFileHandler
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Generate secure secret key
 CORS(app)  # Enable CORS for API access
+
+# ============================================================================
+# RATE LIMITING CONFIGURATION
+# ============================================================================
+
+# Initialize rate limiter
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+    headers_enabled=True
+)
+
+# ============================================================================
+# WEBSOCKET CONFIGURATION
+# ============================================================================
+
+# Initialize SocketIO for real-time updates
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # ============================================================================
 # LOGGING CONFIGURATION
@@ -239,6 +262,7 @@ def mark_customer_visit(name):
 # ============================================================================
 
 @app.route('/api/attendance/recognize', methods=['POST'])
+@limiter.limit("10 per minute")  # Rate limit: 10 face recognitions per minute
 def api_recognize_attendance():
     """API endpoint to recognize face and mark attendance from uploaded image"""
     try:
@@ -275,6 +299,14 @@ def api_recognize_attendance():
                     'confidence': result['confidence'],
                     'already_marked': not is_new
                 })
+
+        # Broadcast real-time update via WebSocket
+        if attendance_marked:
+            broadcast_event('attendance_update', {
+                'timestamp': datetime.now().isoformat(),
+                'count': len(attendance_marked),
+                'employees': [a['name'] for a in attendance_marked]
+            })
 
         return jsonify({
             'success': True,
@@ -365,6 +397,7 @@ def api_get_employee_attendance(name):
 # ============================================================================
 
 @app.route('/api/customers/recognize', methods=['POST'])
+@limiter.limit("10 per minute")  # Rate limit: 10 face recognitions per minute
 def api_recognize_customer():
     """API endpoint to recognize customer from uploaded image"""
     try:
@@ -414,6 +447,14 @@ def api_recognize_customer():
                         'last_visit': str(date.today()),
                         'notes': customer['Notes']
                     })
+
+        # Broadcast real-time update via WebSocket
+        if recognized_customers:
+            broadcast_event('customer_visit', {
+                'timestamp': datetime.now().isoformat(),
+                'count': len(recognized_customers),
+                'customers': [c['name'] for c in recognized_customers]
+            })
 
         return jsonify({
             'success': True,
@@ -609,6 +650,7 @@ def api_get_customer_visits(name):
 # ============================================================================
 
 @app.route('/api/employees/register', methods=['POST'])
+@limiter.limit("5 per minute")  # Rate limit: 5 registrations per minute
 def api_register_employee():
     """Register a new employee with photo"""
     try:
@@ -928,8 +970,36 @@ def get_version():
     })
 
 # ============================================================================
+# WEBSOCKET EVENT HANDLERS
+# ============================================================================
+
+@socketio.on('connect')
+def handle_connect():
+    """Handle WebSocket connection"""
+    app.logger.info(f'Client connected: {request.sid}')
+    emit('connection_response', {'status': 'connected', 'message': 'Connected to FRAMS WebSocket'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Handle WebSocket disconnection"""
+    app.logger.info(f'Client disconnected: {request.sid}')
+
+@socketio.on('subscribe')
+def handle_subscribe(data):
+    """Subscribe to specific event types"""
+    event_types = data.get('events', [])
+    app.logger.info(f'Client {request.sid} subscribed to: {event_types}')
+    emit('subscription_confirmed', {'events': event_types})
+
+# Helper function to broadcast real-time updates
+def broadcast_event(event_type, data):
+    """Broadcast event to all connected clients"""
+    socketio.emit(event_type, data)
+
+# ============================================================================
 # RUN APPLICATION
 # ============================================================================
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Use SocketIO's run method instead of Flask's
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
